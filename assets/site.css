@@ -488,6 +488,7 @@ p { text-wrap: pretty; }
   .nav__book { display: none; }
   .nav__menu { margin-left: auto; }
   .hero__cta { width: 100%; }
+  .pin { display: none; }
   .hero__title { font-size: clamp(38px, 10.6vw, 48px); }
   .hole__tees { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 4px; }
   .hole__nav { flex-wrap: wrap; }
