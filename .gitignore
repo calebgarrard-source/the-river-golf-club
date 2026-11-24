@@ -1,0 +1,11 @@
+# Only what the page loads is kept here. Notes, pitch material and check folders stay out.
+/*
+!/.gitignore
+!/.nojekyll
+!/README.md
+!/index.html
+!/assets/
+/assets/*
+!/assets/site.css
+!/assets/site.js
+!/assets/img/
