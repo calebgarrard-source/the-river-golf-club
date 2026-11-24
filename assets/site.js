@@ -4,6 +4,7 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) document.documentElement.classList.add('motion-ok');
   var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var SVGNS = 'http://www.w3.org/2000/svg';
   var WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four'];
@@ -25,6 +26,7 @@
   };
   menuBtn.addEventListener('click', function () { setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'); });
   $$('a', menu).forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  $$('.menu__links > *', menu).forEach(function (a, k) { a.style.setProperty('--i', k); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
   window.addEventListener('resize', function () { if (window.innerWidth > 1240 && !menu.hidden) setMenu(false); });
 
@@ -50,6 +52,24 @@
   sizePano();
   window.addEventListener('resize', sizePano);
   var enter = function () { requestAnimationFrame(function () { hero.classList.add('is-in'); }); };
+  // One control pauses every loop on the page (the drift, the river, the slow photo settle, the live dots)
+  var calm = $('[data-calm]');
+  if (calm && !reduce) {
+    calm.hidden = false;
+    var setCalm = function (on) {
+      document.documentElement.classList.toggle('motion-paused', on);
+      calm.setAttribute('aria-pressed', String(on));
+      try { localStorage.setItem('river-calm', on ? '1' : '0'); } catch (e) {}
+    };
+    var saved = null; try { saved = localStorage.getItem('river-calm'); } catch (e) {}
+    setCalm(saved === '1');
+    calm.addEventListener('click', function () { setCalm(calm.getAttribute('aria-pressed') !== 'true'); });
+  }
+  // Loops rest while their section is off screen
+  if ('IntersectionObserver' in window) {
+    var idle = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle('is-idle', !e.isIntersecting); }); });
+    [hero, $('#course')].forEach(function (s) { if (s) idle.observe(s); });
+  }
   if (reduce) hero.classList.add('is-in');
   else if (panoImg.complete) enter();
   else { panoImg.addEventListener('load', enter, { once: true }); setTimeout(enter, 1200); }
@@ -151,6 +171,8 @@
     };
     // Water, the range, the river
     mk('path', { d: RIVER, class: 'river' }, map);
+    mk('path', { d: 'M120 822 C300 800 520 794 800 812 C1000 822 1180 818 1400 800 C1600 786 1760 790 1866 828', class: 'current' }, map);
+    mk('path', { d: 'M150 838 C320 816 540 810 800 828 C1000 836 1180 832 1400 816 C1600 802 1750 804 1850 842', class: 'current' }, map);
     LAKES.forEach(function (d) { mk('path', { d: d, class: 'lake' }, map); });
     mk('path', { d: ISLAND, class: 'island' }, map);
     mk('path', { d: RANGE, class: 'range' }, map);
@@ -166,9 +188,9 @@
     var groups = ROUTE.map(function (r, i) {
       var t = r[0], g = r[1], par3 = HOLES[i].par === 3;
       var w = par3 ? 24 : 34;
-      var G = mk('g', { class: 'h' }, map);
-      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w + 5, class: 'h__edge' }, G);
-      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__fill' }, G);
+      var G = mk('g', { class: 'h', style: '--i:' + i }, map);
+      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w + 5, class: 'h__edge', pathLength: 1 }, G);
+      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__fill', pathLength: 1 }, G);
       mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__draw', pathLength: 1 }, G);
       mk('circle', { cx: g[0], cy: g[1], r: par3 ? 17 : 20, class: 'h__green' }, G);
       var flag = mk('g', { class: 'h__flag' }, G);
@@ -180,6 +202,18 @@
       G.addEventListener('click', function () { go(i, true); });
       return G;
     });
+
+    // The fairways trace in playing order the first time the card comes into view
+    if (!reduce && 'IntersectionObserver' in window) {
+      map.classList.add('pre');
+      var tio = new IntersectionObserver(function (es) {
+        if (!es[0].isIntersecting) return;
+        tio.disconnect();
+        map.classList.remove('pre'); map.classList.add('tracing');
+        setTimeout(function () { map.classList.remove('tracing'); }, 18 * 70 + 760);
+      }, { threshold: 0.35 });
+      tio.observe(map);
+    }
 
     // Scorecard: the hole numbers become buttons
     var holeBtns = [], cols = [];
@@ -218,10 +252,12 @@
       facts: $('.hole__facts', book), live: $('[data-hole-live]', book)
     };
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    imgA.classList.add('kb');
     var showPhoto = function (src, srcset, alt) {
       var back = front === imgA ? imgB : imgA;
       var swap = function () {
         back.classList.add('is-on'); front.classList.remove('is-on');
+        back.classList.remove('kb'); void back.offsetWidth; back.classList.add('kb');
         back.removeAttribute('aria-hidden'); front.setAttribute('aria-hidden', 'true'); front = back;
       };
       back.alt = alt;
@@ -370,7 +406,24 @@
     var num = $('[data-count-num]', count), words = $('[data-count-words]', count);
     if (today > last) { count.hidden = true; }
     else if (today >= weekStart && today <= last) { num.textContent = 'Now'; words.textContent = 'Masters Week 2027 is here. The first round is Thursday, April 8.'; }
-    else { num.textContent = days; words.innerHTML = (days === 1 ? 'day' : 'days') + ' until the first round at Augusta National, Thursday, April&nbsp;8, 2027'; }
+    else {
+      num.textContent = days; words.innerHTML = (days === 1 ? 'day' : 'days') + ' until the first round at Augusta National, Thursday, April&nbsp;8, 2027';
+      // Counts up the first time it comes into view (only when it starts below the fold)
+      if (!reduce && 'IntersectionObserver' in window && num.getBoundingClientRect().top > window.innerHeight) {
+        num.style.minWidth = Math.ceil(num.getBoundingClientRect().width) + 'px';
+        num.setAttribute('aria-hidden', 'true');
+        words.insertAdjacentHTML('afterbegin', '<span class="sr">' + days + ' </span>');
+        num.textContent = '0';
+        var cio = new IntersectionObserver(function (es) {
+          if (!es[0].isIntersecting) return;
+          cio.disconnect();
+          var t0 = performance.now(), dur = 1700;
+          var step = function (tt) { var k = Math.min(1, (tt - t0) / dur), e = 1 - Math.pow(1 - k, 3); num.textContent = Math.round(days * e); if (k < 1) requestAnimationFrame(step); };
+          requestAnimationFrame(step);
+        }, { rootMargin: '0px 0px -15% 0px' });
+        cio.observe(num);
+      }
+    }
   }
 
   /* ---------- Cottages: how many are coming ---------- */
@@ -391,8 +444,9 @@
       minus.disabled = n <= 2; plus.disabled = n >= 24;
       mail.href = 'mailto:cverdery@rivergolfclub.com?subject=' + encodeURIComponent('Cottage request for a group of ' + n);
     };
-    minus.addEventListener('click', function () { if (n > 2) { n--; paintGroup(); } });
-    plus.addEventListener('click', function () { if (n < 24) { n++; paintGroup(); } });
+    var roll = function (dir) { if (reduce) return; out.classList.remove('up', 'down'); void out.offsetWidth; out.classList.add(dir); };
+    minus.addEventListener('click', function () { if (n > 2) { n--; paintGroup(); roll('down'); } });
+    plus.addEventListener('click', function () { if (n < 24) { n++; paintGroup(); roll('up'); } });
     paintGroup();
   }
 

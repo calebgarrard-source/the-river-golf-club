@@ -109,7 +109,7 @@ p { text-wrap: pretty; }
 /* First screen */
 .hero { display: grid; grid-template-rows: auto minmax(180px, 1fr); min-height: 100svh; padding-top: var(--nav-h); }
 .hero__words { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 400px); gap: 24px clamp(32px, 5vw, 80px); align-items: end; padding-block: clamp(24px, 6svh, 64px) clamp(24px, 4.5svh, 48px); }
-.hero__title { font-size: clamp(42px, min(6.3vw, 10.4svh), 96px); line-height: 1; letter-spacing: -.015em; padding-top: .06em; max-width: 12.5em; }
+.hero__title { font-size: clamp(42px, min(6vw, 10.4svh), 96px); line-height: 1; letter-spacing: -.015em; padding-top: .06em; max-width: 12.5em; }
 .hero__lede { font-size: clamp(16px, 1.2vw, 18px); line-height: 1.55; color: var(--ink-2); }
 .hero__cta { margin-top: 24px; }
 .hero__status { display: flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 14px; color: var(--ink-2); }
@@ -125,14 +125,14 @@ p { text-wrap: pretty; }
 .pin.is-off { display: none; }
 
 /* Entrance: the panorama opens like a folded card, the words settle, the pins land last */
-.js .hero[data-enter] .hero__title,
 .js .hero[data-enter] .hero__side { opacity: 0; transform: translateY(14px); }
+.js .hero[data-enter] .ln > span { transform: translateY(110%); }
 .js .hero[data-enter] .pano { clip-path: inset(0 50% 0 50%); }
 .js .hero[data-enter] .pano__img { transform: scale(1.06); }
 .js .hero[data-enter] .pin { opacity: 0; }
-.js .hero.is-in .hero__title,
-.js .hero.is-in .hero__side { opacity: 1; transform: none; transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
-.js .hero.is-in .hero__side { transition-delay: 120ms; }
+.js .hero.is-in .hero__side { opacity: 1; transform: none; transition: opacity 900ms var(--ease), transform 900ms var(--ease); transition-delay: 280ms; }
+.js .hero.is-in .ln > span { transform: none; transition: transform 1150ms var(--ease); }
+.js .hero.is-in .ln + .ln > span { transition-delay: 110ms; }
 .js .hero.is-in .pano { clip-path: inset(0 0 0 0); transition: clip-path 1400ms var(--ease) 160ms; }
 .js .hero.is-in .pano__img { transform: none; transition: transform 2200ms var(--ease) 160ms; }
 .js .hero.is-in .pin { opacity: 1; transition: opacity 600ms var(--ease) 1500ms; }
@@ -418,6 +418,11 @@ p { text-wrap: pretty; }
   .staff { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 
+@media (max-width: 1100px) {
+  .hero__words { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .hero__side { max-width: 560px; }
+}
+
 @media (max-width: 1080px) {
   .book { grid-template-columns: minmax(0, 1fr); }
   .hole { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 32px; align-items: start; }
@@ -528,7 +533,8 @@ p { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 1ms !important; transition-delay: 0ms !important; animation: none !important; }
-  .js .hero[data-enter] .hero__title, .js .hero[data-enter] .hero__side, .js .hero[data-enter] .pin { opacity: 1; transform: none; }
+  .js .hero[data-enter] .hero__side, .js .hero[data-enter] .pin, .js .hero[data-enter] .calm { opacity: 1; transform: none; }
+  .js .hero[data-enter] .ln > span { transform: none; }
   .js .hero[data-enter] .pano { clip-path: none; }
   .js .hero[data-enter] .pano__img { transform: none; }
 }
@@ -540,6 +546,79 @@ p { text-wrap: pretty; }
 .rv.in img { transform: none; }
 .masters__photo img { object-position: 60% 50%; }
 .reviews__photo img { object-position: 50% 60%; }
+
+/* ---------- Motion: one authored movement per section. Loops can be paused, rest off screen, and stop under reduced motion ---------- */
+.hero__title .ln { display: block; overflow: hidden; padding: .14em 0 .24em; margin: -.14em 0 -.24em; }
+.hero__title .ln > span { display: block; text-wrap: balance; }
+
+/* the panorama breathes: a very slow drift once it has opened */
+@keyframes drift { from { transform: scale(1) translate3d(0, 0, 0); } to { transform: scale(1.045) translate3d(-1.1%, -.5%, 0); } }
+.motion-ok .hero.is-in .pano__inner { animation: drift 34s ease-in-out 2.4s infinite alternate; }
+
+/* one control pauses every loop on the page */
+.calm { position: absolute; right: 16px; bottom: 16px; z-index: 3; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: rgba(15, 31, 61, .62); color: #fff; cursor: pointer; transition: background-color var(--fast), opacity 600ms var(--ease); }
+.calm[hidden] { display: none; }
+.calm:hover { background: rgba(15, 31, 61, .88); }
+.calm:active { transform: scale(.94); }
+.calm:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.calm svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.calm .i-play { display: none; fill: currentColor; stroke: none; }
+.calm[aria-pressed="true"] .i-pause { display: none; }
+.calm[aria-pressed="true"] .i-play { display: block; }
+.js .hero[data-enter] .calm { opacity: 0; }
+.js .hero.is-in .calm { opacity: 1; transition-delay: 0s, 1900ms; }
+
+/* a live dot breathes while the place is open */
+.dot { position: relative; }
+@keyframes breathe { 0% { transform: scale(1); opacity: .5; } 70%, 100% { transform: scale(2.8); opacity: 0; } }
+.motion-ok .dot.is-open::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--open); animation: breathe 2.8s var(--ease) infinite; }
+
+/* the course: fairways trace in playing order when the card arrives; the river keeps moving downstream */
+.map .h__edge, .map .h__fill { stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.map .h { transition: opacity 500ms var(--ease) calc(var(--i, 0) * 70ms); }
+.map .h__edge { transition: stroke var(--fast), stroke-dashoffset 900ms var(--ease) calc(var(--i, 0) * 70ms); }
+.map .h__fill { transition: stroke var(--mid) var(--ease), stroke-dashoffset 900ms var(--ease) calc(var(--i, 0) * 70ms); }
+.map.pre .h { opacity: 0; }
+.map.pre .h__edge, .map.pre .h__fill { stroke-dashoffset: 1; }
+.map.pre .h.is-on .h__draw, .map.tracing .h.is-on .h__draw { opacity: 0; stroke-dashoffset: 1; transition: none; }
+.map.pre .h.is-on .h__flag, .map.tracing .h.is-on .h__flag { opacity: 0; transform: translateY(30px); transition: none; }
+.map .current { fill: none; stroke: rgba(239, 233, 218, .24); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 26 150; }
+.map .current + .current { stroke-dasharray: 16 190; stroke: rgba(239, 233, 218, .16); }
+@keyframes flow { to { stroke-dashoffset: -176; } }
+@keyframes flow2 { to { stroke-dashoffset: -206; } }
+.motion-ok .map .current { animation: flow 7s linear infinite; }
+.motion-ok .map .current + .current { animation: flow2 10s linear infinite; }
+
+/* the hole photograph settles slowly after it arrives */
+@keyframes settle { from { scale: 1; } to { scale: 1.06; } }
+.motion-ok .hole__photo img.kb { animation: settle 11s ease-out forwards; }
+
+/* the nineteenth eases with the scroll, where the browser can drive it */
+@keyframes rzoom { from { scale: 1.16; } to { scale: 1; } }
+@supports (animation-timeline: view()) {
+  .reviews__photo { view-timeline-name: --nineteen; view-timeline-axis: block; }
+  .motion-ok .reviews__photo img { animation: rzoom linear both; animation-timeline: --nineteen; animation-range: entry 0% exit 100%; }
+}
+
+/* the group count rolls the way it changed */
+.stepper__num { display: inline-block; }
+@keyframes rollUp { from { transform: translateY(45%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rollDown { from { transform: translateY(-45%); opacity: 0; } to { transform: none; opacity: 1; } }
+.motion-ok .stepper__num.up { animation: rollUp 340ms var(--ease); }
+.motion-ok .stepper__num.down { animation: rollDown 340ms var(--ease); }
+
+/* the phone menu sets its links down in order */
+@keyframes menuIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.motion-ok .menu:not([hidden]) .menu__links > * { animation: menuIn 460ms var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
+
+/* the crest settles a little once the page moves */
+.nav .crest { transition: transform var(--mid) var(--ease); transform-origin: left center; }
+.nav.is-scrolled .crest { transform: scale(.88); }
+
+/* paused by the visitor, or resting off screen */
+.motion-paused .pano__inner, .motion-paused .map .current, .motion-paused .hole__photo img.kb,
+.is-idle .pano__inner, .is-idle .map .current { animation-play-state: paused !important; }
+.motion-paused .dot::after { display: none; }
 
 /* Without scripts the scorecard and hole 1 still read; the map needs the script to draw */
 html:not(.js) .map, html:not(.js) .hole__nav, html:not(.js) .hole__tees { display: none; }
