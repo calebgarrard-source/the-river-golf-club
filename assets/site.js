@@ -38,7 +38,9 @@
     if (!w || !h) return;
     var iw, ih;
     if (w / h > RATIO) { iw = w; ih = w / RATIO; } else { ih = h; iw = h * RATIO; }
-    var left = Math.min(0, Math.max(w - iw, w / 2 - FX * iw));
+    var A = 0.33, B = 0.965, left;
+    if (w / iw >= B - A) left = w / 2 - ((A + B) / 2) * iw; else left = w - B * iw;
+    left = Math.min(0, Math.max(w - iw, left));
     var top = Math.min(0, Math.max(h - ih, h / 2 - FY * ih));
     inner.style.cssText = 'width:' + iw + 'px;height:' + ih + 'px;left:' + left + 'px;top:' + top + 'px;transform:none';
     inner.setAttribute('data-sized', '');
@@ -51,6 +53,8 @@
   };
   sizePano();
   window.addEventListener('resize', sizePano);
+  if ('ResizeObserver' in window) new ResizeObserver(sizePano).observe(pano);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizePano);
   var enter = function () { requestAnimationFrame(function () { hero.classList.add('is-in'); }); };
   // One control pauses every loop on the page (the drift, the river, the slow photo settle, the live dots)
   var calm = $('[data-calm]');
@@ -161,7 +165,7 @@
 
   var book = $('[data-book]');
   if (book) {
-    var map = $('[data-map]', book);
+    var maps = $$('[data-map]', book);
     var state = { hole: 0, tee: 'black' };
     var mk = function (tag, attrs, parent) {
       var el = document.createElementNS(SVGNS, tag);
@@ -169,51 +173,58 @@
       if (parent) parent.appendChild(el);
       return el;
     };
-    // Water, the range, the river
-    mk('path', { d: RIVER, class: 'river' }, map);
-    mk('path', { d: 'M120 822 C300 800 520 794 800 812 C1000 822 1180 818 1400 800 C1600 786 1760 790 1866 828', class: 'current' }, map);
-    mk('path', { d: 'M150 838 C320 816 540 810 800 828 C1000 836 1180 832 1400 816 C1600 802 1750 804 1850 842', class: 'current' }, map);
-    LAKES.forEach(function (d) { mk('path', { d: d, class: 'lake' }, map); });
-    mk('path', { d: ISLAND, class: 'island' }, map);
-    mk('path', { d: RANGE, class: 'range' }, map);
-    var lbl = function (x, y, text, cls, anchor) { var t = mk('text', { x: x, y: y, class: 'lbl ' + (cls || ''), 'text-anchor': anchor || 'middle' }, map); t.textContent = text; return t; };
-    lbl(980, 828, 'SAVANNAH RIVER', 'lbl--river');
-    lbl(1870, 762, 'SOUTH CAROLINA', 'lbl--state', 'end');
-    lbl(1858, 886, 'GEORGIA', 'lbl--state', 'end');
-    lbl(1178, 222, 'Range');
-    mk('rect', { x: 936, y: 248, width: 26, height: 22, class: 'house' }, map);
-    mk('path', { d: 'M932 250 L949 236 L966 250 Z', class: 'house' }, map);
-    lbl(918, 318, 'Clubhouse');
-
-    var groups = ROUTE.map(function (r, i) {
-      var t = r[0], g = r[1], par3 = HOLES[i].par === 3;
-      var w = par3 ? 24 : 34;
-      var G = mk('g', { class: 'h', style: '--i:' + i }, map);
-      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w + 5, class: 'h__edge', pathLength: 1 }, G);
-      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__fill', pathLength: 1 }, G);
-      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__draw', pathLength: 1 }, G);
-      mk('circle', { cx: g[0], cy: g[1], r: par3 ? 17 : 20, class: 'h__green' }, G);
-      var flag = mk('g', { class: 'h__flag' }, G);
-      mk('line', { x1: g[0], y1: g[1], x2: g[0], y2: g[1] - 52 }, flag);
-      mk('path', { d: 'M' + g[0] + ' ' + (g[1] - 52) + ' l26 9 l-26 9 Z' }, flag);
-      mk('circle', { cx: t[0], cy: t[1], r: 29, class: 'h__tag' }, G);
-      var num = mk('text', { x: t[0], y: t[1] + 1, class: 'h__num' }, G);
-      num.textContent = i + 1;
-      G.addEventListener('click', function () { go(i, true); });
-      return G;
-    });
-
-    // The fairways trace in playing order the first time the card comes into view
-    if (!reduce && 'IntersectionObserver' in window) {
-      map.classList.add('pre');
-      var tio = new IntersectionObserver(function (es) {
-        if (!es[0].isIntersecting) return;
-        tio.disconnect();
-        map.classList.remove('pre'); map.classList.add('tracing');
-        setTimeout(function () { map.classList.remove('tracing'); }, 18 * 70 + 760);
-      }, { threshold: 0.35 });
-      tio.observe(map);
-    }
+    // Each map draws the course traced from the club's own map: the full routing on wide screens,
+    // and on phones the front nine and the back nine as two pages, so all eighteen stay readable
+    var buildMap = function (map) {
+      var mode = map.getAttribute('data-map');
+      mk('path', { d: RIVER, class: 'river' }, map);
+      mk('path', { d: 'M120 822 C300 800 520 794 800 812 C1000 822 1180 818 1400 800 C1600 786 1760 790 1866 828', class: 'current' }, map);
+      mk('path', { d: 'M150 838 C320 816 540 810 800 828 C1000 836 1180 832 1400 816 C1600 802 1750 804 1850 842', class: 'current' }, map);
+      LAKES.forEach(function (d) { mk('path', { d: d, class: 'lake' }, map); });
+      mk('path', { d: ISLAND, class: 'island' }, map);
+      if (mode !== 'back') mk('path', { d: RANGE, class: 'range' }, map);
+      var lbl = function (x, y, text, cls, anchor) { var t = mk('text', { x: x, y: y, class: 'lbl ' + (cls || ''), 'text-anchor': anchor || 'middle' }, map); t.textContent = text; return t; };
+      lbl(mode === 'front' ? 1450 : mode === 'back' ? 548 : 980, 828, 'SAVANNAH RIVER', 'lbl--river');
+      if (mode === 'back') { lbl(112, 762, 'SOUTH CAROLINA', 'lbl--state', 'start'); lbl(124, 886, 'GEORGIA', 'lbl--state', 'start'); }
+      else { lbl(1870, 762, 'SOUTH CAROLINA', 'lbl--state', 'end'); lbl(1858, 886, 'GEORGIA', 'lbl--state', 'end'); }
+      if (mode !== 'back') lbl(1178, 222, 'Range');
+      if (mode !== 'front') {
+        mk('rect', { x: 936, y: 248, width: 26, height: 22, class: 'house' }, map);
+        mk('path', { d: 'M932 250 L949 236 L966 250 Z', class: 'house' }, map);
+        lbl(918, 318, 'Clubhouse');
+      }
+      var gs = ROUTE.map(function (r, i) {
+        if ((mode === 'front' && i > 8) || (mode === 'back' && i < 9)) return null;
+        var t = r[0], g = r[1], par3 = HOLES[i].par === 3;
+        var w = par3 ? 24 : 34;
+        var G = mk('g', { class: 'h', style: '--i:' + i }, map);
+        mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w + 5, class: 'h__edge', pathLength: 1 }, G);
+        mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__fill', pathLength: 1 }, G);
+        mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__draw', pathLength: 1 }, G);
+        mk('circle', { cx: g[0], cy: g[1], r: par3 ? 17 : 20, class: 'h__green' }, G);
+        var flag = mk('g', { class: 'h__flag' }, G);
+        mk('line', { x1: g[0], y1: g[1], x2: g[0], y2: g[1] - 52 }, flag);
+        mk('path', { d: 'M' + g[0] + ' ' + (g[1] - 52) + ' l26 9 l-26 9 Z' }, flag);
+        mk('circle', { cx: t[0], cy: t[1], r: 29, class: 'h__tag' }, G);
+        var num = mk('text', { x: t[0], y: t[1] + 1, class: 'h__num' }, G);
+        num.textContent = i + 1;
+        G.addEventListener('click', function () { go(i, true, 'map'); });
+        return G;
+      });
+      // The fairways trace in playing order the first time this map comes into view
+      if (!reduce && 'IntersectionObserver' in window) {
+        map.classList.add('pre');
+        var tio = new IntersectionObserver(function (es) {
+          if (!es[0].isIntersecting) return;
+          tio.disconnect();
+          map.classList.remove('pre'); map.classList.add('tracing');
+          setTimeout(function () { map.classList.remove('tracing'); }, 18 * 70 + 760);
+        }, { threshold: 0.35 });
+        tio.observe(map);
+      }
+      return gs;
+    };
+    var groupSets = maps.map(buildMap);
 
     // Scorecard: the hole numbers become buttons
     var holeBtns = [], cols = [];
@@ -239,7 +250,7 @@
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'hp'; b.textContent = i + 1;
       b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', i === 18 ? 'Hole 19, the extra hole' : 'Hole ' + (i + 1));
-      b.addEventListener('click', function () { go(i, true); });
+      b.addEventListener('click', function () { go(i, true, 'pick'); });
       pick.appendChild(b); pickBtns.push(b);
     })(k);
 
@@ -295,30 +306,15 @@
       el.rating.textContent = RATING[state.tee];
     };
 
-    // On a phone the map shows one nine at a time, so the numbers stay readable
-    var FULL = [96, 76, 1800, 818], FRONT = [1000, 76, 900, 818], BACK = [96, 76, 904, 818];
-    var vb = FULL.slice(), vbAnim = 0;
-    var setView = function (i, animate) {
-      var target = window.innerWidth < 700 ? (i < 9 ? FRONT : BACK) : FULL;
-      if (target.join() === vb.join()) return;
-      cancelAnimationFrame(vbAnim);
-      if (!animate || reduce) { vb = target.slice(); map.setAttribute('viewBox', vb.join(' ')); return; }
-      var from = vb.slice(), t0 = performance.now();
-      var step = function (t) {
-        var k = Math.min(1, (t - t0) / 600), e = 1 - Math.pow(1 - k, 4);
-        vb = from.map(function (v, n) { return v + (target[n] - v) * e; });
-        map.setAttribute('viewBox', vb.join(' '));
-        if (k < 1) vbAnim = requestAnimationFrame(step); else vb = target.slice();
-      };
-      vbAnim = requestAnimationFrame(step);
-    };
-    window.addEventListener('resize', function () { setView(state.hole, false); });
-
-    var go = function (i, user) {
+    var go = function (i, user, from) {
       state.hole = i;
-      setView(i, user);
       var is19 = i === 18;
-      groups.forEach(function (g, gi) { g.classList.toggle('is-on', gi === i); });
+      groupSets.forEach(function (gs) { gs.forEach(function (g, gi) { if (g) g.classList.toggle('is-on', gi === i); }); });
+      // On a phone the card sits below the maps: bring it into view when a hole is chosen up there
+      if (from && window.innerWidth < 700) {
+        var card = $('.hole__photo', book), cr = card.getBoundingClientRect();
+        if (cr.top < 72 || cr.bottom > window.innerHeight) card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      }
       holeBtns.forEach(function (b, bi) { b.setAttribute('aria-pressed', String(bi === i)); });
       pickBtns.forEach(function (b, bi) { b.setAttribute('aria-pressed', String(bi === i)); });
       cols.forEach(function (cells, ci) { cells.forEach(function (c) { if (c) c.classList.toggle('is-col', ci === i); }); });

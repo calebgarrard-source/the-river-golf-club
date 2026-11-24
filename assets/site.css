@@ -161,6 +161,13 @@ p { text-wrap: pretty; }
 .book { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 4vw, 64px); margin-top: 32px; align-items: start; }
 .book__map { min-width: 0; }
 .map { display: block; width: 100%; height: auto; overflow: hidden; }
+.map--front, .map--back, .map__label { display: none; }
+@media (max-width: 699px) {
+  .map--full { display: none; }
+  .map--front, .map--back { display: block; }
+  .map__label { display: block; margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: .02em; color: var(--cream-2); }
+  .map--front { margin-bottom: 20px; }
+}
 .map .river, .map .lake { fill: var(--water); }
 .map .island { fill: var(--navy); }
 .map .range { fill: none; stroke: rgba(239, 233, 218, .22); stroke-width: 2.5; stroke-dasharray: 6 8; }
@@ -356,9 +363,9 @@ p { text-wrap: pretty; }
 .panel:not(.is-open):hover img { transform: scale(1.02); }
 .panel { overflow: hidden; isolation: isolate; }
 .panel__text { flex: none; height: 136px; padding-top: 18px; overflow: hidden; }
-.panel__title { font: 400 24px/1.15 var(--display); letter-spacing: 0; color: var(--ink); white-space: nowrap; }
-.panel__text p { margin-top: 10px; font-size: 15px; line-height: 1.5; color: var(--ink-2); max-width: 46ch; opacity: 0; transform: translateY(6px); transition: opacity 300ms var(--ease), transform 500ms var(--ease); }
-.panel.is-open .panel__text p { opacity: 1; transform: none; transition-delay: 220ms; }
+.panel__title { font: 400 clamp(20px, 1.7vw, 24px)/1.2 var(--display); letter-spacing: 0; color: var(--ink); text-wrap: balance; }
+.panel__text p:not(.panel__title) { margin-top: 10px; font-size: 15px; line-height: 1.5; color: var(--ink-2); max-width: 46ch; opacity: 0; transform: translateY(6px); transition: opacity 300ms var(--ease), transform 500ms var(--ease); }
+.panel.is-open .panel__text p:not(.panel__title) { opacity: 1; transform: none; transition-delay: 220ms; }
 
 /* Reviews */
 .reviews { padding-bottom: var(--sec); }
@@ -423,6 +430,11 @@ p { text-wrap: pretty; }
   .hero__side { max-width: 560px; }
 }
 
+@media (max-width: 1100px) and (orientation: portrait) {
+  .hero { min-height: 0; grid-template-rows: auto auto; }
+  .pano { aspect-ratio: 1.9 / 1; }
+}
+
 @media (max-width: 1080px) {
   .book { grid-template-columns: minmax(0, 1fr); }
   .hole { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 32px; align-items: start; }
@@ -450,14 +462,15 @@ p { text-wrap: pretty; }
   .panel, .panel.is-open { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 24px; align-items: center; }
   .panel img { height: auto; aspect-ratio: 3 / 2; }
   .panel__btn { display: none; }
-  .panel__title { white-space: normal; }
-  .panel__text { height: auto; padding: 0; }
-  .panel__text p, .panel.is-open .panel__text p { opacity: 1; transform: none; }
+  .panel__title { font-size: 24px; }
+  .panel__text { height: auto; padding: 0; overflow: visible; }
+  .panel__text p:not(.panel__title), .panel.is-open .panel__text p:not(.panel__title) { opacity: 1; transform: none; }
 }
 
 @media (max-width: 700px) {
   :root { --nav-h: 64px; }
-  .crest { width: 44px; }
+  .nav .crest { width: 44px; }
+  .crest--cream { width: 104px; }
   .hole { display: block; }
   .hole__data { margin-top: 20px; }
   .masters__grid { grid-template-columns: minmax(0, 1fr); }
@@ -475,7 +488,6 @@ p { text-wrap: pretty; }
   .nav__book { display: none; }
   .nav__menu { margin-left: auto; }
   .hero__cta { width: 100%; }
-  .pin--left { display: none; }
   .hero__title { font-size: clamp(38px, 10.6vw, 48px); }
   .hole__tees { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 4px; }
   .hole__nav { flex-wrap: wrap; }
@@ -484,8 +496,12 @@ p { text-wrap: pretty; }
   .card th[scope="row"] { width: 17%; padding-left: 6px; font-size: 12px; }
   .card th[scope="col"] { width: 12%; font-size: 12px; }
   .card { font-size: 13px; }
-  .rooms { width: 100%; }
-  .seg { flex: 1 1 auto; justify-content: center; padding: 0 10px; }
+  .rooms { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; width: 100%; background: var(--cream-line); }
+  .seg { grid-column: span 2; justify-content: center; padding: 0 6px; background: var(--navy); }
+  .seg:nth-child(n+4) { grid-column: span 3; }
+  .seg + .seg { border-left: 0; }
+  .group { grid-template-columns: minmax(0, 1fr); }
+  .group__answer { max-width: none; }
   .cottage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "rooms" "pics"; }
   .cottage__pics { margin-top: 10px; }
   .count { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -494,7 +510,7 @@ p { text-wrap: pretty; }
   .tees__total { white-space: normal; }
   .book { row-gap: 20px; }
   .book__map { display: contents; }
-  .map { order: 1; }
+  .map, .map__label { order: 1; }
   .holepick { order: 2; display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; }
   .hole { order: 3; }
   .cards { order: 4; margin-top: 8px; }
@@ -533,7 +549,8 @@ p { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 1ms !important; transition-delay: 0ms !important; animation: none !important; }
-  .js .hero[data-enter] .hero__side, .js .hero[data-enter] .pin, .js .hero[data-enter] .calm { opacity: 1; transform: none; }
+  .js .hero[data-enter] .hero__side, .js .hero[data-enter] .calm { opacity: 1; transform: none; }
+  .js .hero[data-enter] .pin { opacity: 1; }
   .js .hero[data-enter] .ln > span { transform: none; }
   .js .hero[data-enter] .pano { clip-path: none; }
   .js .hero[data-enter] .pano__img { transform: none; }
@@ -621,4 +638,4 @@ p { text-wrap: pretty; }
 .motion-paused .dot::after { display: none; }
 
 /* Without scripts the scorecard and hole 1 still read; the map needs the script to draw */
-html:not(.js) .map, html:not(.js) .hole__nav, html:not(.js) .hole__tees { display: none; }
+html:not(.js) .map, html:not(.js) .map__label, html:not(.js) .hole__nav, html:not(.js) .hole__tees { display: none; }
