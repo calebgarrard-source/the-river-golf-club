@@ -20,6 +20,8 @@
     menuBtn.setAttribute('aria-expanded', String(open));
     menu.hidden = !open;
     document.body.style.overflow = open ? 'hidden' : '';
+    $('#main').inert = open; $('.foot').inert = open;
+    if (open) { var first = $('a', menu); if (first) first.focus(); }
   };
   menuBtn.addEventListener('click', function () { setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'); });
   $$('a', menu).forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
@@ -164,9 +166,10 @@
     var groups = ROUTE.map(function (r, i) {
       var t = r[0], g = r[1], par3 = HOLES[i].par === 3;
       var w = par3 ? 24 : 34;
-      var G = mk('g', { class: 'h', tabindex: '0', role: 'button', 'aria-label': 'Hole ' + (i + 1) + ', par ' + HOLES[i].par }, map);
+      var G = mk('g', { class: 'h' }, map);
       mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w + 5, class: 'h__edge' }, G);
       mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__fill' }, G);
+      mk('line', { x1: t[0], y1: t[1], x2: g[0], y2: g[1], 'stroke-width': w, class: 'h__draw', pathLength: 1 }, G);
       mk('circle', { cx: g[0], cy: g[1], r: par3 ? 17 : 20, class: 'h__green' }, G);
       var flag = mk('g', { class: 'h__flag' }, G);
       mk('line', { x1: g[0], y1: g[1], x2: g[0], y2: g[1] - 52 }, flag);
@@ -175,7 +178,6 @@
       var num = mk('text', { x: t[0], y: t[1] + 1, class: 'h__num' }, G);
       num.textContent = i + 1;
       G.addEventListener('click', function () { go(i, true); });
-      G.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(i, true); } });
       return G;
     });
 
@@ -213,13 +215,14 @@
       from: $('[data-hole-from]', book), tees: $('[data-hole-tees]', book), note: $('[data-hole-note]', book),
       count: $('[data-hole-count]', book), prev: $('[data-hole-prev]', book), next: $('[data-hole-next]', book),
       h19: $('[data-hole-19]', book), total: $('[data-total-yds]', book), rating: $('[data-rating]', book),
-      facts: $('.hole__facts', book)
+      facts: $('.hole__facts', book), live: $('[data-hole-live]', book)
     };
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
     var showPhoto = function (src, srcset, alt) {
       var back = front === imgA ? imgB : imgA;
       var swap = function () {
-        back.classList.add('is-on'); front.classList.remove('is-on'); front = back;
+        back.classList.add('is-on'); front.classList.remove('is-on');
+        back.removeAttribute('aria-hidden'); front.setAttribute('aria-hidden', 'true'); front = back;
       };
       back.alt = alt;
       if (back.getAttribute('src') === src) { swap(); return; }
@@ -294,6 +297,7 @@
         el.tees.hidden = true;
         el.note.textContent = '';
         el.count.textContent = 'The 19th';
+        if (user) el.live.textContent = 'Hole 19, the extra hole, on the lake.';
         el.prev.disabled = false; el.next.disabled = true;
         return;
       }
@@ -310,6 +314,7 @@
       }).join('');
       el.note.textContent = h.note || '';
       el.count.textContent = 'Hole ' + n + ' of 18';
+      if (user) el.live.textContent = 'Hole ' + n + '. Par ' + h.par + ', handicap ' + h.hcp + '. ' + h.y[ti] + ' yards from the ' + state.tee + ' tees.';
       el.prev.disabled = i === 0; el.next.disabled = false;
       // Warm the next photograph so it is decoded before the visitor asks for it
       if (n < 18) { var pre = new Image(); pre.src = 'assets/img/holes/hole-' + pad(n + 1) + '-760.webp'; }
@@ -407,6 +412,7 @@
         }
         img.classList.toggle('is-on', on);
       });
+      $$('[data-room]', roomsWrap).forEach(function (img) { img.setAttribute('aria-hidden', String(img.getAttribute('data-room') !== v)); });
     };
     $$('input[name="room"]', roomsWrap).forEach(function (r) { r.addEventListener('change', paintRoom); });
     window.addEventListener('pageshow', paintRoom);
@@ -438,21 +444,38 @@
     if (canHover) p.addEventListener('mouseenter', function () { openPanel(p); });
   });
 
+  /* ---------- Photographs arrive once ---------- */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var frames = $$('.member__photo, .masters__photo, .stay__photo, .events__show .room, .grill__photo, .grill__bar, .reviews__photo');
+    frames.forEach(function (f) { f.classList.add('rv'); });
+    var rio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        rio.unobserve(e.target);
+        var f = e.target, img = $('img', f), done = false;
+        var show = function () { if (!done) { done = true; f.classList.add('in'); } };
+        if (img && img.decode) img.decode().then(show, show); else show();
+        setTimeout(show, 1400);
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    frames.forEach(function (f) { rio.observe(f); });
+  }
+
   /* ---------- Who to ask ---------- */
   var ASK = {
     chris: ['chris-verdery', 'Chris Verdery', 'Director of Golf, PGA Professional', 'cverdery@rivergolfclub.com', '+18032020110', '(803) 202-0110'],
-    shop: ['wayne-ackerson', 'The golf shop', 'Wayne Ackerson, Head Golf Professional, and the shop staff', 'golfshop@rivergolfclub.com', '+18032020110', '(803) 202-0110'],
+    shop: ['wayne-ackerson paul-walton garrett-neal', 'The golf shop', 'Wayne Ackerson, Paul Walton and Garrett Neal, our golf professionals', 'golfshop@rivergolfclub.com', '+18032020110', '(803) 202-0110'],
     bella: ['bella-ryan', 'Bella Ryan', 'Event Coordinator', 'bella@rivergolfclub.com', '+17066918985', '(706) 691-8985'],
     wayne: ['wayne-ackerson', 'Wayne Ackerson', 'Head Golf Professional', 'wayne@rivergolfclub.com', '+18032020110', '(803) 202-0110'],
     josh: ['josh-keaton', 'Josh Keaton', 'Food and Beverage Director', 'josh@rivergolfclub.com', '+18032020110', '(803) 202-0110']
   };
   var ask = $('[data-ask]');
   if (ask) {
-    var aBtn = $('[data-ask-btn]', ask), aImg = $('[data-ask-img]', ask), aName = $('[data-ask-name]', ask), aRole = $('[data-ask-role]', ask), aMail = $('[data-ask-mail]', ask), aTel = $('[data-ask-tel]', ask);
+    var aBtn = $('[data-ask-btn]', ask), aName = $('[data-ask-name]', ask), aRole = $('[data-ask-role]', ask), aMail = $('[data-ask-mail]', ask), aTel = $('[data-ask-tel]', ask);
     var paintAsk = function () {
       var c = $('input[name="ask"]:checked', ask), d = ASK[c ? c.value : 'chris'];
-      aImg.src = 'assets/img/staff/' + d[0] + '.webp';
-      aImg.alt = d[1] === 'The golf shop' ? 'Wayne Ackerson' : d[1];
+      var who = d[0].split(' ');
+      $$('.staff [data-person]', ask).forEach(function (li) { li.classList.toggle('is-asked', who.indexOf(li.getAttribute('data-person')) > -1); });
       aName.textContent = d[1]; aRole.textContent = d[2];
       aMail.href = 'mailto:' + d[3]; aMail.textContent = d[3];
       aTel.href = 'tel:' + d[4]; aTel.textContent = d[5];

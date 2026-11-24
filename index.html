@@ -49,7 +49,7 @@
       <a href="#dining">Grill</a>
       <a href="#contact">Contact</a>
     </nav>
-    <a class="btn btn--primary nav__book" href="https://foreupsoftware.com/index.php/booking/20233/4226#/teetimes">Member tee times</a>
+    <a class="btn btn--quiet nav__book" href="https://foreupsoftware.com/index.php/booking/20233/4226#/teetimes">Member tee times</a>
     <button class="nav__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-btn>
       <span class="nav__menu-label">Menu</span>
       <span class="nav__menu-icon" aria-hidden="true"><i></i><i></i></span>
@@ -77,29 +77,17 @@
   <div class="wrap hero__words">
     <h1 class="hero__title">Private golf on the <span class="nowrap">Savannah River</span></h1>
     <div class="hero__side">
-      <p class="hero__lede">Jim Fazio’s course in North Augusta, across the river from downtown Augusta. Golf&nbsp;Digest named it one of the top five new courses in the country.</p>
-      <div class="hero__actions">
-        <a class="btn btn--primary" href="#membership">Ask about membership</a>
-        <a class="btn btn--quiet" href="https://foreupsoftware.com/index.php/booking/20233/4226#/teetimes">Member tee times</a>
-      </div>
+      <p class="hero__lede">A private club in North Augusta, across the river from downtown Augusta. Golf&nbsp;Digest named it one of the top five new courses in the country.</p>
+      <a class="btn btn--primary hero__cta" href="#membership">Ask about membership</a>
+      <p class="hero__status"><span class="dot" data-status-dot="club"></span><span>Clubhouse <span data-status="club">open daily from 7:00 am</span></span></p>
     </div>
   </div>
   <div class="pano" data-pano>
     <div class="pano__inner" data-pano-inner>
       <img class="pano__img" src="assets/img/pano-1600.webp" srcset="assets/img/pano-1000.webp 1000w, assets/img/pano-1600.webp 1600w, assets/img/pano.webp 2560w" sizes="(max-width: 700px) 280vw, 100vw" width="2560" height="860" alt="The River Golf Club from the air: the white clubhouse and pavilion, the eighteenth green on the lake, and downtown Augusta’s towers across the river" fetchpriority="high">
-      <span class="pin" style="--x:39.8%;--y:41%" data-pin><span class="pin__dot"></span><span class="pin__label">Clubhouse and pavilion</span></span>
-      <span class="pin pin--left" style="--x:80%;--y:19.5%" data-pin><span class="pin__dot"></span><span class="pin__label">Downtown Augusta, across the river</span></span>
+      <span class="pin" style="--x:39.8%;--y:41%" data-pin aria-hidden="true"><span class="pin__dot"></span><span class="pin__label">Clubhouse and pavilion</span></span>
+      <span class="pin pin--left" style="--x:80%;--y:19.5%" data-pin aria-hidden="true"><span class="pin__dot"></span><span class="pin__label">Downtown Augusta</span></span>
     </div>
-  </div>
-</section>
-
-<!-- Today -->
-<section class="today" aria-label="At the club today">
-  <div class="wrap today__row">
-    <p class="today__item"><span class="dot" data-status-dot="club"></span><span><strong>Clubhouse</strong> <span data-status="club">Open daily, 7:00 am to 6:00 pm</span></span></p>
-    <p class="today__item"><span class="dot" data-status-dot="grill"></span><span><strong>River Club Grill</strong> <span data-status="grill">Breakfast and lunch, open to the public</span></span></p>
-    <p class="today__item"><a class="link" href="https://www.google.com/maps/dir/?api=1&amp;destination=The+River+Golf+Club+307+Riverside+Blvd+North+Augusta+SC">307 Riverside Blvd, North Augusta</a></p>
-    <p class="today__item"><a class="link" href="tel:+18032020110">(803) 202-0110</a></p>
   </div>
 </section>
 
@@ -108,7 +96,7 @@
   <div class="wrap">
     <div class="course__head">
       <h2>Eighteen holes along the river</h2>
-      <p class="course__intro">Jim Fazio laid the course along the South Carolina bank in 1998: lakes, wetlands, dramatic bunkers and Mini-Verde ultradwarf bermuda greens. Golf Digest named it one of the top five new courses in the country in 1999, and it hosted US Open qualifying in 2002.</p>
+      <p class="course__intro">Jim Fazio laid it along the South Carolina bank in 1998: lakes, wetlands, dramatic bunkers and Mini-Verde ultradwarf bermuda greens. It hosted US Open qualifying in 2002. Choose a tee, then a hole on the card.</p>
     </div>
 
     <div class="tees" role="radiogroup" aria-label="Tees">
@@ -120,12 +108,12 @@
         <label class="tee"><input type="radio" name="tee" value="gold"><span class="tee__dot" style="--tee:#c9a043"></span><span>Gold</span></label>
         <label class="tee"><input type="radio" name="tee" value="green"><span class="tee__dot" style="--tee:#3f8a58"></span><span>Green</span></label>
       </div>
-      <p class="tees__total" aria-live="polite"><span data-total-yds>6,847</span> yards <span class="sep">·</span> Par 71 <span class="sep">·</span> <span data-rating>Rating 73.1, slope 137</span></p>
+      <p class="tees__total" aria-live="polite"><span data-total-yds>6,847</span> yards <span class="sep">·</span> Par 71 <span class="sep sep--rating">·</span> <span data-rating>Rating 73.1, slope 137</span></p>
     </div>
 
     <div class="book">
       <div class="book__map">
-        <svg class="map" data-map viewBox="96 76 1800 818" role="group" aria-label="Course map: choose a hole"></svg>
+        <svg class="map" data-map viewBox="96 76 1800 818" aria-hidden="true" focusable="false"></svg>
         <div class="holepick" data-holepick role="group" aria-label="Choose a hole"></div>
         <div class="cards" data-cards>
           <table class="card">
@@ -148,10 +136,11 @@
         <p class="book__note">Yardages to the center of the green, from the club’s scorecard.</p>
       </div>
 
-      <article class="hole" data-hole aria-live="polite">
+      <article class="hole" data-hole aria-label="The chosen hole">
+        <p class="sr" data-hole-live aria-live="polite"></p>
         <div class="hole__photo">
           <img class="is-on" data-hole-img="a" src="assets/img/holes/hole-01-760.webp" srcset="assets/img/holes/hole-01-760.webp 760w, assets/img/holes/hole-01.webp 1400w" sizes="(min-width: 1100px) 520px, 100vw" width="1400" height="846" alt="Hole 1 from the tee" loading="lazy">
-          <img data-hole-img="b" src="assets/img/holes/hole-01-760.webp" alt="" width="1400" height="846" loading="lazy">
+          <img data-hole-img="b" src="assets/img/holes/hole-01-760.webp" alt="" width="1400" height="846" loading="lazy" aria-hidden="true">
         </div>
         <div class="hole__data">
           <p class="hole__num"><span class="sr">Hole </span><span data-hole-num>1</span></p>
@@ -204,7 +193,7 @@
 
     <div class="member__side">
       <figure class="frame member__photo">
-        <img src="assets/img/clubhouse-800.webp" srcset="assets/img/clubhouse-800.webp 800w, assets/img/clubhouse.webp 1600w" sizes="(min-width: 1100px) 680px, 100vw" width="1600" height="900" alt="The clubhouse and pavilion from the air, with the putting green and the lake behind" loading="lazy">
+        <img src="assets/img/back-nine-800.webp" srcset="assets/img/back-nine-800.webp 800w, assets/img/back-nine.webp 1600w" sizes="(min-width: 1100px) 680px, 100vw" width="1600" height="850" alt="The back nine from the air: a lake lined with cypress, greens on both banks and Augusta on the horizon" loading="lazy">
       </figure>
       <h3>Member benefits</h3>
       <ul class="ticks">
@@ -227,7 +216,7 @@
 <section class="masters" id="masters">
   <div class="wrap masters__grid">
     <figure class="frame masters__photo">
-      <img src="assets/img/eighteen-palms-900.webp" srcset="assets/img/eighteen-palms-900.webp 900w, assets/img/eighteen-palms.webp 1800w" sizes="(min-width: 1100px) 1200px, 100vw" width="1800" height="1197" alt="A green framed by palmettos and bunkers on the lake, early morning" loading="lazy">
+      <img src="assets/img/seventeen-skyline-900.webp" srcset="assets/img/seventeen-skyline-900.webp 900w, assets/img/seventeen-skyline.webp 1800w" sizes="(min-width: 1100px) 1200px, 100vw" width="1800" height="987" alt="The seventeenth green on the lake in autumn, with downtown Augusta’s towers beyond the trees" loading="lazy">
     </figure>
     <div class="masters__copy">
       <h2>Masters Week tee times</h2>
@@ -278,7 +267,7 @@
           <p class="group__label" id="group-label">Golfers in your group</p>
           <div class="stepper" role="group" aria-labelledby="group-label">
             <button class="iconbtn" type="button" data-group-minus aria-label="One fewer golfer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
-            <output class="stepper__num" data-group-num aria-live="polite">8</output>
+            <output class="stepper__num" data-group-num>8</output>
             <button class="iconbtn" type="button" data-group-plus aria-label="One more golfer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
           </div>
           <p class="group__answer" data-group-answer aria-live="polite">Sweetbay gives all eight a bedroom of their own, each with a king bed.</p>
@@ -347,10 +336,10 @@
       </div>
       <figure class="frame room">
         <img class="is-on" data-room="outside" src="assets/img/pavilion-outside-800.webp" srcset="assets/img/pavilion-outside-800.webp 800w, assets/img/pavilion-outside.webp 1600w" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="900" alt="The white pavilion from the air: arched windows, a second-floor balcony and the course beside it" loading="lazy">
-        <img data-room="ceremony" src="assets/img/room-ceremony-800.webp" srcset="assets/img/room-ceremony-800.webp 800w, assets/img/room-ceremony.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1200" alt="The pavilion set for a ceremony: rows of white chairs under the wood ceiling and arched windows">
-        <img data-room="banquet" src="assets/img/room-banquet-800.webp" srcset="assets/img/room-banquet-800.webp 800w, assets/img/room-banquet.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1200" alt="The pavilion set for a banquet: round tables with tall feather centerpieces">
-        <img data-room="party" src="assets/img/room-party-800.webp" srcset="assets/img/room-party-800.webp 800w, assets/img/room-party.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1200" alt="The pavilion set for a party: white chairs, high tables and stage lights">
-        <img data-room="lunch" src="assets/img/room-terrace-800.webp" srcset="assets/img/room-terrace-800.webp 800w, assets/img/room-terrace.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1050" alt="Lunch tables under the pavilion arches, with the course outside">
+        <img data-room="ceremony" aria-hidden="true" src="assets/img/room-ceremony-800.webp" srcset="assets/img/room-ceremony-800.webp 800w, assets/img/room-ceremony.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1200" alt="The pavilion set for a ceremony: rows of white chairs under the wood ceiling and arched windows">
+        <img data-room="banquet" aria-hidden="true" src="assets/img/room-banquet-800.webp" srcset="assets/img/room-banquet-800.webp 800w, assets/img/room-banquet.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1200" alt="The pavilion set for a banquet: round tables with tall feather centerpieces">
+        <img data-room="party" aria-hidden="true" src="assets/img/room-party-800.webp" srcset="assets/img/room-party-800.webp 800w, assets/img/room-party.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1200" alt="The pavilion set for a party: white chairs, high tables and stage lights">
+        <img data-room="lunch" aria-hidden="true" src="assets/img/room-terrace-800.webp" srcset="assets/img/room-terrace-800.webp 800w, assets/img/room-terrace.webp 1600w" loading="lazy" sizes="(min-width: 1100px) 960px, 100vw" width="1600" height="1050" alt="Lunch tables under the pavilion arches, with the course outside">
       </figure>
     </div>
   </div>
@@ -416,7 +405,7 @@
 <!-- Reviews -->
 <section class="reviews" id="reviews">
   <figure class="reviews__photo">
-    <img src="assets/img/dusk-pano-960.webp" srcset="assets/img/dusk-pano-960.webp 960w, assets/img/dusk-pano.webp 1920w" sizes="(max-width: 700px) 250vw, 100vw" width="1920" height="776" alt="The eighteenth green, the clubhouse and the lake at golden hour, with Augusta on the skyline" loading="lazy">
+    <img src="assets/img/nineteen-wide-960.webp" srcset="assets/img/nineteen-wide-960.webp 960w, assets/img/nineteen-wide.webp 1920w" sizes="(max-width: 700px) 250vw, 100vw" width="1920" height="1251" alt="The nineteenth green on the lake, reached by a boardwalk, on a clear morning" loading="lazy">
   </figure>
   <div class="wrap reviews__grid">
     <h2 class="reviews__score">4.7 on Google, from 318 reviews</h2>
@@ -444,7 +433,6 @@
         <label class="topic"><input type="radio" name="ask" value="josh"><span>Dining and catering</span></label>
       </div>
       <div class="ask__card" aria-live="polite">
-        <img data-ask-img src="assets/img/staff/chris-verdery.webp" width="480" height="600" alt="Chris Verdery" loading="lazy">
         <div class="ask__words">
           <p class="ask__name" data-ask-name>Chris Verdery</p>
           <p class="ask__role" data-ask-role>Director of Golf, PGA Professional</p>
@@ -456,15 +444,15 @@
     </div>
     <h3 class="staff__title">Club staff</h3>
     <ul class="staff">
-      <li><img src="assets/img/staff/chris-verdery-280.webp" srcset="assets/img/staff/chris-verdery-280.webp 280w, assets/img/staff/chris-verdery.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Chris Verdery</strong>Director of Golf</p></li>
-      <li><img src="assets/img/staff/wayne-ackerson-280.webp" srcset="assets/img/staff/wayne-ackerson-280.webp 280w, assets/img/staff/wayne-ackerson.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Wayne Ackerson</strong>Head Golf Professional</p></li>
-      <li><img src="assets/img/staff/patrick-murphy-280.webp" srcset="assets/img/staff/patrick-murphy-280.webp 280w, assets/img/staff/patrick-murphy.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Patrick Murphy</strong>Golf Course Superintendent</p></li>
-      <li><img src="assets/img/staff/paul-walton-280.webp" srcset="assets/img/staff/paul-walton-280.webp 280w, assets/img/staff/paul-walton.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Paul Walton</strong>Assistant Golf Professional</p></li>
-      <li><img src="assets/img/staff/garrett-neal-280.webp" srcset="assets/img/staff/garrett-neal-280.webp 280w, assets/img/staff/garrett-neal.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Garrett Neal</strong>Assistant Golf Professional</p></li>
-      <li><img src="assets/img/staff/martin-diaz-280.webp" srcset="assets/img/staff/martin-diaz-280.webp 280w, assets/img/staff/martin-diaz.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Martin Diaz</strong>Assistant Superintendent</p></li>
-      <li><img src="assets/img/staff/kevin-walton-280.webp" srcset="assets/img/staff/kevin-walton-280.webp 280w, assets/img/staff/kevin-walton.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Kevin Walton</strong>Member Services Leader</p></li>
-      <li><img src="assets/img/staff/josh-keaton-280.webp" srcset="assets/img/staff/josh-keaton-280.webp 280w, assets/img/staff/josh-keaton.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Josh Keaton</strong>Food and Beverage Director</p></li>
-      <li><img src="assets/img/staff/bella-ryan-280.webp" srcset="assets/img/staff/bella-ryan-280.webp 280w, assets/img/staff/bella-ryan.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Bella Ryan</strong>Event Coordinator</p></li>
+      <li data-person="chris-verdery"><img src="assets/img/staff/chris-verdery-280.webp" srcset="assets/img/staff/chris-verdery-280.webp 280w, assets/img/staff/chris-verdery.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Chris Verdery</strong>Director of Golf</p></li>
+      <li data-person="wayne-ackerson"><img src="assets/img/staff/wayne-ackerson-280.webp" srcset="assets/img/staff/wayne-ackerson-280.webp 280w, assets/img/staff/wayne-ackerson.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Wayne Ackerson</strong>Head Golf Professional</p></li>
+      <li data-person="patrick-murphy"><img src="assets/img/staff/patrick-murphy-280.webp" srcset="assets/img/staff/patrick-murphy-280.webp 280w, assets/img/staff/patrick-murphy.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Patrick Murphy</strong>Golf Course Superintendent</p></li>
+      <li data-person="paul-walton"><img src="assets/img/staff/paul-walton-280.webp" srcset="assets/img/staff/paul-walton-280.webp 280w, assets/img/staff/paul-walton.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Paul Walton</strong>Assistant Golf Professional</p></li>
+      <li data-person="garrett-neal"><img src="assets/img/staff/garrett-neal-280.webp" srcset="assets/img/staff/garrett-neal-280.webp 280w, assets/img/staff/garrett-neal.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Garrett Neal</strong>Assistant Golf Professional</p></li>
+      <li data-person="martin-diaz"><img src="assets/img/staff/martin-diaz-280.webp" srcset="assets/img/staff/martin-diaz-280.webp 280w, assets/img/staff/martin-diaz.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Martin Diaz</strong>Assistant Superintendent</p></li>
+      <li data-person="kevin-walton"><img src="assets/img/staff/kevin-walton-280.webp" srcset="assets/img/staff/kevin-walton-280.webp 280w, assets/img/staff/kevin-walton.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Kevin Walton</strong>Member Services Leader</p></li>
+      <li data-person="josh-keaton"><img src="assets/img/staff/josh-keaton-280.webp" srcset="assets/img/staff/josh-keaton-280.webp 280w, assets/img/staff/josh-keaton.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Josh Keaton</strong>Food and Beverage Director</p></li>
+      <li data-person="bella-ryan"><img src="assets/img/staff/bella-ryan-280.webp" srcset="assets/img/staff/bella-ryan-280.webp 280w, assets/img/staff/bella-ryan.webp 480w" sizes="(min-width: 1240px) 130px, (min-width: 700px) 18vw, 31vw" width="480" height="600" alt="" loading="lazy"><p><strong>Bella Ryan</strong>Event Coordinator</p></li>
     </ul>
   </div>
 </section>
